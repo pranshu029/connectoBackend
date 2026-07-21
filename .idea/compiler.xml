@@ -5,26 +5,23 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.6.3/52e345c907fbf173b376586c7f8b131d53fa5867/mapstruct-processor-1.6.3.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.38/57f8f5e02e92a30fd21b80cbd426a4172b5f8e29/lombok-1.18.38.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok-mapstruct-binding/0.2.0/2f1cf9ced7b720ba4996c942b816669e63f0fa4f/lombok-mapstruct-binding-0.2.0.jar" />
+        </processorPath>
+        <module name="connectoBackend.main" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.38/57f8f5e02e92a30fd21b80cbd426a4172b5f8e29/lombok-1.18.38.jar" />
         </processorPath>
-        <module name="com.connectobackend.connectoBackend.main" />
-        <module name="com.connectobackend.connectoBackend.test" />
+        <module name="connectoBackend.test" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="com..connectoBackend" target="21" />
-      <module name="com..connectoBackend.main" target="21" />
-      <module name="com..connectoBackend.test" target="21" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="21" />
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="com..connectoBackend" options="-parameters" />
-      <module name="com..connectoBackend.main" options="-parameters" />
-      <module name="com..connectoBackend.test" options="-parameters" />
-      <module name="com.connectobackend.connectoBackend" options="-parameters" />
-      <module name="com.connectobackend.connectoBackend.main" options="-parameters" />
-      <module name="com.connectobackend.connectoBackend.test" options="-parameters" />
-    </option>
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters" />
   </component>
 </project>
