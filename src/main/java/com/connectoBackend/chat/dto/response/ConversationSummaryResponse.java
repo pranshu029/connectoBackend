@@ -18,7 +18,13 @@ public record ConversationSummaryResponse(
 
         LocalDateTime lastMessageTime,
 
-        long unreadCount
+        long unreadCount,
+
+        UUID otherParticipantId,
+
+        String otherParticipantName,
+
+        String otherParticipantProfileImage
 
 ) {
 }

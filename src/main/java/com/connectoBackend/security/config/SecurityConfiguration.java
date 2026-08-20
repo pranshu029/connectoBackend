@@ -44,15 +44,19 @@ public class SecurityConfiguration {
                         authorize
                                 .requestMatchers(
                                         "/api/v1/auth/**",
+                                        "/api-docs",
+                                        "/api-docs/**",
+                                        "/v3/api-docs",
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/actuator/health"
                                 )
                                 .permitAll()
+
                                 .requestMatchers(HttpMethod.OPTIONS, "/**")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/users")
+                                .requestMatchers(HttpMethod.POST, "/api/v1/users/register")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

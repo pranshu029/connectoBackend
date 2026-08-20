@@ -36,12 +36,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse createUser(CreateUserRequest request) {
 
+        System.out.println("Inside register service");
         // -> Check email uniqueness.
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Email already exists.");
         }
 
-        // -> Check username uniqueness.
+        // -> Check username uniqueness
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new ConflictException("Username already exists.");
         }

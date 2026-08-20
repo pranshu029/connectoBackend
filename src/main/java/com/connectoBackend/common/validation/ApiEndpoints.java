@@ -1,8 +1,8 @@
-package com.connectoBackend.common.constants;
+package com.connectoBackend.common.validation;
 
-/**
- * API endpoint constants.
- */
+
+ //API endpoint constants.
+
 public final class ApiEndpoints {
 
     private ApiEndpoints() {

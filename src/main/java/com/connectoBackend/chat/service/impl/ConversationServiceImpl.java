@@ -209,13 +209,37 @@ public class ConversationServiceImpl implements ConversationService {
 			unread = messageRepository.countByConversation(conversation);
 		}
 
+		// Determine other participant for DIRECT conversations
+		UUID otherParticipantId = null;
+		String otherParticipantName = null;
+		String otherParticipantProfileImage = null;
+
+		if (conversation.getType() == ConversationType.DIRECT) {
+			// For DIRECT conversations, find the other participant
+			User otherParticipant = conversation.getMembers().stream()
+					.map(ConversationMember::getUser)
+					.filter(u -> !u.getId().equals(user.getId()))
+					.findFirst()
+					.orElse(null);
+
+			if (otherParticipant != null) {
+				otherParticipantId = otherParticipant.getId();
+				otherParticipantName = (otherParticipant.getFirstName() == null ? "" : otherParticipant.getFirstName()) + 
+										" " + (otherParticipant.getLastName() == null ? "" : otherParticipant.getLastName()).trim();
+				otherParticipantProfileImage = otherParticipant.getProfilePictureUrl();
+			}
+		}
+
 		return new ConversationSummaryResponse(
 				conversation.getId(),
 				conversation.getName(),
 				conversation.getImageUrl(),
 				latestMessage != null ? latestMessage.getContent() : null,
 				latestMessage != null ? latestMessage.getCreatedAt() : null,
-				unread
+				unread,
+				otherParticipantId,
+				otherParticipantName,
+				otherParticipantProfileImage
 		);
 	}
 

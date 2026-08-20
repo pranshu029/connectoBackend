@@ -31,7 +31,7 @@ public class BlockUserServiceImpl implements BlockUserService {
 	public void blockUser(UUID userId, UUID blockedUserId) {
 
 		if (userId.equals(blockedUserId)) {
-			throw new BadRequestException("You cannot block yourself.");
+			throw new BadRequestException(" You cannot block yourself ");
 		}
 
 		User user = getUser(userId);

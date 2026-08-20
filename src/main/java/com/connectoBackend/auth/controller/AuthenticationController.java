@@ -23,12 +23,12 @@ public class AuthenticationController {
     // -> Authenticate user.
     @PostMapping("/login")
     public ApiResponse<AuthenticationResponse> login(
-                        @Valid @RequestBody LoginRequest request,
-                        HttpServletRequest httpServletRequest
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpServletRequest
     ) {
 
         AuthenticationResponse response =
-                                authenticationService.login(request, httpServletRequest);
+                authenticationService.login(request, httpServletRequest);
 
         return ApiResponse.<AuthenticationResponse>builder()
                 .success(true)

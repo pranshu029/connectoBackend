@@ -1,9 +1,11 @@
 package com.connectoBackend.common.exception;
 
+import com.connectoBackend.common.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,13 +14,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
- * Global exception handler.
+ * Global exception handler for the application.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // -> Validation errors from @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException exception,
@@ -40,6 +44,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // -> Validation errors from @Validated
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(
             ConstraintViolationException exception,
@@ -55,6 +60,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // -> Resource not found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException exception,
@@ -70,6 +76,23 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // -> Duplicate resource / conflict
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflictException(
+            ConflictException exception,
+            HttpServletRequest request
+    ) {
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                "Conflict",
+                exception.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+    }
+
+    // -> Custom authentication exception
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException exception,
@@ -85,6 +108,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // -> Spring Security bad credentials
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(
             BadCredentialsException exception,
@@ -100,11 +124,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // -> Any other exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(
             Exception exception,
             HttpServletRequest request
     ) {
+
+        exception.printStackTrace();
 
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -115,7 +142,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // -> Build error response.
+    // -> Common response builder
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,
             String error,
@@ -134,6 +161,21 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(status).body(response);
+    }
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                "Invalid request parameter.",
+                request.getRequestURI(),
+                null
+        );
     }
 
 }
