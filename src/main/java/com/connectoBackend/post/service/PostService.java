@@ -17,7 +17,9 @@ public interface PostService {
 
     Page<PostResponse> getFeed(UUID userId, Pageable pageable);
 
-    PostResponse getPostById(UUID postId);
+    Page<PostResponse> getPostsByUser(UUID userId, UUID viewerId, Pageable pageable);
+
+    PostResponse getPostById(UUID postId, UUID viewerId);
 
     PostResponse updatePost(UUID userId, UUID postId, UpdatePostRequest request);
 

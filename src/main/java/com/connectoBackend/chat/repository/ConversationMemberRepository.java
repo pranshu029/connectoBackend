@@ -6,6 +6,8 @@ import com.connectoBackend.chat.enums.MemberStatus;
 import com.connectoBackend.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +22,9 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
     List<ConversationMember> findAllByConversation(Conversation conversation);
 
     List<ConversationMember> findAllByUser(User user);
+
+        @Query("select cm from ConversationMember cm where cm.user = :user and cm.active = true and cm.status = com.connectoBackend.chat.enums.MemberStatus.ACTIVE and cm.conversation.active = true and cm.conversation.deleted = false")
+        List<ConversationMember> findAllActiveByUser(@Param("user") User user);
 
     List<ConversationMember> findAllByConversationAndStatus(
             Conversation conversation,

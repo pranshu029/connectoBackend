@@ -13,7 +13,7 @@ public interface GroupInvitationService {
 
 	List<GroupInvitationResponse> getInvitationsForUser(UUID invitedUserId);
 
-	void respondToInvitation(UUID invitationId, InvitationStatus status);
+	void respondToInvitation(UUID userId, UUID invitationId, InvitationStatus status);
 
-	void cancelInvitation(UUID invitationId);
+	void cancelInvitation(UUID userId, UUID invitationId);
 }

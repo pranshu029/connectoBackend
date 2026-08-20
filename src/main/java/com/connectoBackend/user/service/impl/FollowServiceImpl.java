@@ -14,6 +14,9 @@ import com.connectoBackend.user.enums.FollowRequestStatus;
 import com.connectoBackend.user.repository.FollowRepository;
 import com.connectoBackend.user.repository.FollowRequestRepository;
 import com.connectoBackend.user.repository.UserRepository;
+import com.connectoBackend.user.repository.BlockedUserRepository;
+import com.connectoBackend.user.enums.AccountStatus;
+import com.connectoBackend.common.exception.ForbiddenException;
 import com.connectoBackend.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class FollowServiceImpl implements FollowService {
     private final FollowRepository followRepository;
     private final FollowRequestRepository followRequestRepository;
     private final NotificationRepository notificationRepository;
+    private final BlockedUserRepository blockedUserRepository;
 
     @Override
     public void followUser(UUID userId, UUID targetUserId) {
@@ -40,12 +44,20 @@ public class FollowServiceImpl implements FollowService {
 
         User user = getUser(userId);
         User targetUser = getUser(targetUserId);
+        if (user.isDeleted() || targetUser.isDeleted() || targetUser.getAccountStatus() == AccountStatus.DELETED) {
+            throw new ResourceNotFoundException("User not found.");
+        }
+        if (blockedUserRepository.existsByUserAndBlockedUser(user, targetUser)
+                || blockedUserRepository.existsByUserAndBlockedUser(targetUser, user)) {
+            throw new ForbiddenException("This user interaction is blocked.");
+        }
 
         if (followRepository.existsByFollowerAndFollowing(user, targetUser)) {
             throw new ConflictException("You are already following this user.");
         }
 
-        if (followRequestRepository.existsByRequesterAndTargetUser(user, targetUser)) {
+        FollowRequest existingRequest = followRequestRepository.findByRequesterAndTargetUser(user, targetUser).orElse(null);
+        if (existingRequest != null && existingRequest.getStatus() == FollowRequestStatus.PENDING) {
             throw new ConflictException("A follow request already exists.");
         }
 
@@ -55,11 +67,9 @@ public class FollowServiceImpl implements FollowService {
         }
 
         if (requiresApproval) {
-            FollowRequest request = FollowRequest.builder()
-                    .requester(user)
-                    .targetUser(targetUser)
-                    .status(FollowRequestStatus.PENDING)
-                    .build();
+                FollowRequest request = existingRequest == null ? FollowRequest.builder()
+                    .requester(user).targetUser(targetUser).build() : existingRequest;
+                request.setStatus(FollowRequestStatus.PENDING);
             followRequestRepository.save(request);
 
             Notification notification = Notification.builder()
@@ -101,12 +111,14 @@ public class FollowServiceImpl implements FollowService {
             return "FOLLOWING";
         }
 
-        if (followRequestRepository.existsByRequesterAndTargetUser(user, targetUser)) {
+                if (followRequestRepository.findByRequesterAndTargetUser(user, targetUser)
+				.map(request -> request.getStatus() == FollowRequestStatus.PENDING)
+				.orElse(false)) {
             return "REQUEST_SENT";
         }
 
-        if (followRequestRepository.findAllByTargetUser(targetUser).stream()
-                .anyMatch(req -> req.getRequester().equals(user) && req.getStatus() == FollowRequestStatus.PENDING)) {
+        if (followRequestRepository.findAllByTargetUserAndStatus(targetUser, FollowRequestStatus.PENDING).stream()
+            .anyMatch(req -> req.getRequester().equals(user))) {
             return "REQUEST_RECEIVED";
         }
 
@@ -151,6 +163,9 @@ public class FollowServiceImpl implements FollowService {
 
         if (!request.getTargetUser().equals(user)) {
             throw new BadRequestException("You cannot accept someone else's follow request.");
+        }
+        if (request.getStatus() != FollowRequestStatus.PENDING) {
+            throw new BadRequestException("This follow request is no longer pending.");
         }
 
         request.setStatus(FollowRequestStatus.ACCEPTED);

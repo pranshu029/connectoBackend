@@ -22,16 +22,16 @@ public interface UserSessionService {
     );
 
     // -> Get all active sessions of a user.
-    List<UserSession> getActiveSessions(UUID userId);
+    List<UserSession> getActiveSessions(UUID requesterId, UUID userId);
 
     // -> Update last activity.
     void updateLastActivity(UUID sessionId);
 
     // -> Logout current session.
-    void logout(UUID sessionId);
+    void logout(UUID requesterId, UUID sessionId);
 
     // -> Logout all sessions of a user.
-    void logoutAll(UUID userId);
+    void logoutAll(UUID requesterId, UUID userId);
 
     // -> Remove expired sessions.
     void removeExpiredSessions();

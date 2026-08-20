@@ -18,23 +18,26 @@ public interface UserService {
     UserResponse createUser(CreateUserRequest request);
 
     // -> Get user by id.
-    UserResponse getUserById(UUID userId);
+    UserResponse getUserById(UUID userId, UUID viewerId);
 
     // -> Get user profile.
-    UserProfileResponse getUserProfile(UUID userId);
+    UserProfileResponse getUserProfile(UUID userId, UUID viewerId);
+
+    UUID getUserIdByEmail(String email);
 
     // -> Get user by email.
-    UserResponse getUserByEmail(String email);
+    UserResponse getUserByEmail(String email, UUID viewerId);
 
     // -> Get user by username.
-    UserResponse getUserByUsername(String username);
+    UserResponse getUserByUsername(String username, UUID viewerId);
 
     // -> Get all users.
-    Page<UserResponse> getAllUsers(Pageable pageable);
+    Page<UserResponse> getAllUsers(Pageable pageable, UUID viewerId);
 
     // -> Update user profile.
     UserProfileResponse updateUser(
             UUID userId,
+            UUID viewerId,
             UpdateUserRequest request
     );
 

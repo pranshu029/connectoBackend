@@ -2,8 +2,12 @@ package com.connectoBackend.auth.controller;
 
 import com.connectoBackend.auth.dto.request.LoginRequest;
 import com.connectoBackend.auth.dto.request.RefreshTokenRequest;
+import com.connectoBackend.auth.dto.request.SendOtpRequest;
+import com.connectoBackend.auth.dto.request.VerifyOtpRequest;
 import com.connectoBackend.auth.dto.response.AuthenticationResponse;
+import com.connectoBackend.auth.dto.response.RegistrationVerificationResponse;
 import com.connectoBackend.auth.service.AuthenticationService;
+import com.connectoBackend.auth.service.EmailVerificationService;
 import com.connectoBackend.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -19,6 +23,27 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final EmailVerificationService emailVerificationService;
+
+    @PostMapping("/send-otp")
+    public ApiResponse<Void> sendOtp(@Valid @RequestBody SendOtpRequest request) {
+        emailVerificationService.sendOtp(request);
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message("OTP sent successfully.")
+                .build();
+    }
+
+    @PostMapping("/verify-otp")
+    public ApiResponse<RegistrationVerificationResponse> verifyOtp(
+            @Valid @RequestBody VerifyOtpRequest request
+    ) {
+        return ApiResponse.<RegistrationVerificationResponse>builder()
+                .success(true)
+                .message("Email verified successfully.")
+                .data(emailVerificationService.verifyOtp(request))
+                .build();
+    }
 
     // -> Authenticate user.
     @PostMapping("/login")

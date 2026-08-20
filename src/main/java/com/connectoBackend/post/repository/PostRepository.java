@@ -12,7 +12,9 @@ import java.util.UUID;
 @Repository
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
-    Page<Post> findAllByAuthorOrderByCreatedAtDesc(User author, Pageable pageable);
+    Page<Post> findAllByAuthorAndDeletedFalseOrderByCreatedAtDesc(User author, Pageable pageable);
 
-    Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<Post> findAllByDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
+
+    java.util.Optional<Post> findByIdAndDeletedFalse(UUID id);
 }

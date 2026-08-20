@@ -37,6 +37,8 @@ public class UserProfileResponse {
 
     private String profilePictureUrl;
 
+    private Integer avatarId;
+
     private String coverPictureUrl;
 
     private String bio;

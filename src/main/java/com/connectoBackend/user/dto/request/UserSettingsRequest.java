@@ -23,4 +23,14 @@ public class UserSettingsRequest {
 
 	@NotNull
 	private Boolean onlineStatusVisible;
+
+	private Boolean publicProfileDetails;
+
+	private Boolean firstNamePublic;
+	private Boolean lastNamePublic;
+	private Boolean emailPublic;
+	private Boolean phoneNumberPublic;
+	private Boolean dateOfBirthPublic;
+	private Boolean genderPublic;
+	private Boolean profilePicturePublic;
 }

@@ -12,9 +12,9 @@ public interface MessageService {
 
 	MessageResponse sendMessage(UUID conversationId, UUID senderId, SendMessageRequest request);
 
-	MessageResponse editMessage(UUID messageId, EditMessageRequest request);
+	MessageResponse editMessage(UUID messageId, UUID editorUserId, EditMessageRequest request);
 
-	void deleteMessage(UUID messageId);
+	void deleteMessage(UUID messageId, UUID deleterUserId);
 
-	Page<MessageResponse> getMessages(UUID conversationId, Pageable pageable);
+	Page<MessageResponse> getMessages(UUID conversationId, UUID viewerUserId, Pageable pageable);
 }

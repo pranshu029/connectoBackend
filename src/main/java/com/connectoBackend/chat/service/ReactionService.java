@@ -12,5 +12,5 @@ public interface ReactionService {
 
 	void removeReaction(UUID messageId, UUID userId);
 
-	List<MessageReactionResponse> getReactions(UUID messageId);
+	List<MessageReactionResponse> getReactions(UUID messageId, UUID viewerId);
 }

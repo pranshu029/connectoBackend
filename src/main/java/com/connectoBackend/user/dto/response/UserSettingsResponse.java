@@ -17,5 +17,15 @@ public record UserSettingsResponse(
 
 		Boolean onlineStatusVisible
 
+		, Boolean publicProfileDetails,
+
+		Boolean firstNamePublic,
+		Boolean lastNamePublic,
+		Boolean emailPublic,
+		Boolean phoneNumberPublic,
+		Boolean dateOfBirthPublic,
+		Boolean genderPublic,
+		Boolean profilePicturePublic
+
 ) {
 }

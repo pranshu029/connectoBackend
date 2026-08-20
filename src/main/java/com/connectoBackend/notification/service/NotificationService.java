@@ -9,9 +9,11 @@ public interface NotificationService {
 
     List<NotificationResponse> getNotificationsForUser(UUID userId);
 
-    void markNotificationAsRead(UUID notificationId);
+    void markNotificationAsRead(UUID userId, UUID notificationId);
 
     void markAllNotificationsAsRead(UUID userId);
 
-    void deleteNotification(UUID notificationId);
+    void deleteNotification(UUID userId, UUID notificationId);
+
+    long getUnreadCount(UUID userId);
 }

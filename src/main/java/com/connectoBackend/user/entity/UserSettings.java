@@ -40,4 +40,36 @@ public class UserSettings extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     private Boolean onlineStatusVisible = true;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean publicProfileDetails = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean firstNamePublic = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean lastNamePublic = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean emailPublic = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean phoneNumberPublic = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean dateOfBirthPublic = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean genderPublic = false;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean profilePicturePublic = false;
 }

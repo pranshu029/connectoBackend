@@ -26,5 +26,13 @@ public interface UserSettingsMapper {
 	@Mapping(target = "notificationsEnabled", source = "notificationsEnabled")
 	@Mapping(target = "readReceiptsEnabled", source = "readReceiptsEnabled")
 	@Mapping(target = "onlineStatusVisible", source = "onlineStatusVisible")
+	@Mapping(target = "publicProfileDetails", source = "publicProfileDetails")
+	@Mapping(target = "firstNamePublic", source = "firstNamePublic")
+	@Mapping(target = "lastNamePublic", source = "lastNamePublic")
+	@Mapping(target = "emailPublic", source = "emailPublic")
+	@Mapping(target = "phoneNumberPublic", source = "phoneNumberPublic")
+	@Mapping(target = "dateOfBirthPublic", source = "dateOfBirthPublic")
+	@Mapping(target = "genderPublic", source = "genderPublic")
+	@Mapping(target = "profilePicturePublic", source = "profilePicturePublic")
 	void updateEntity(UserSettingsRequest request, @MappingTarget UserSettings entity);
 }

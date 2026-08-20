@@ -8,6 +8,10 @@ import com.connectoBackend.chat.repository.ConversationRepository;
 import com.connectoBackend.chat.repository.MessageRepository;
 import com.connectoBackend.chat.service.ConversationReadStateService;
 import com.connectoBackend.common.exception.ResourceNotFoundException;
+import com.connectoBackend.common.exception.ForbiddenException;
+import com.connectoBackend.chat.entity.ConversationMember;
+import com.connectoBackend.chat.enums.MemberStatus;
+import com.connectoBackend.chat.repository.ConversationMemberRepository;
 import com.connectoBackend.user.entity.User;
 import com.connectoBackend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +29,18 @@ public class ConversationReadStateServiceImpl implements ConversationReadStateSe
 	private final ConversationRepository conversationRepository;
 	private final UserRepository userRepository;
 	private final MessageRepository messageRepository;
+	private final ConversationMemberRepository conversationMemberRepository;
 
 	@Override
 	public void markAsRead(UUID conversationId, UUID userId, UUID lastReadMessageId) {
 		Conversation conversation = getConversation(conversationId);
 		User user = getUser(userId);
 		Message lastReadMessage = getMessage(lastReadMessageId);
+		ConversationMember member = conversationMemberRepository.findByConversationAndUser(conversation, user)
+				.orElseThrow(() -> new ForbiddenException("You are not a member of this conversation."));
+		if (!member.isActive() || member.getStatus() != MemberStatus.ACTIVE || !lastReadMessage.getConversation().getId().equals(conversationId)) {
+			throw new ForbiddenException("Invalid conversation read state.");
+		}
 
 		ConversationReadState state = conversationReadStateRepository.findByConversationAndUser(conversation, user)
 				.orElseGet(ConversationReadState::new);

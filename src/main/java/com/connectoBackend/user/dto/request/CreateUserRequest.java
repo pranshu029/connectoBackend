@@ -40,6 +40,9 @@ public class CreateUserRequest {
     @Size(max = 255)
     private String email;
 
+    @NotBlank(message = "Registration verification token is required.")
+    private String registrationToken;
+
     @NotBlank
     @Size(min = 8, max = 100)
     private String password;

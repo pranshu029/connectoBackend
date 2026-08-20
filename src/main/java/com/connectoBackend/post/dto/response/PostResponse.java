@@ -17,6 +17,7 @@ public record PostResponse(
         LocalDateTime updatedAt,
         long likeCount,
         long commentCount,
+        boolean likedByCurrentUser,
         List<PostCommentResponse> comments
 ) {
 }

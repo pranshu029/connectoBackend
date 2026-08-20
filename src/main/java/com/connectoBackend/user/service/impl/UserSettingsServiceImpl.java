@@ -55,6 +55,14 @@ public class UserSettingsServiceImpl implements UserSettingsService {
 								.notificationsEnabled(true)
 								.readReceiptsEnabled(true)
 								.onlineStatusVisible(true)
+								.publicProfileDetails(false)
+								.firstNamePublic(false)
+								.lastNamePublic(false)
+								.emailPublic(false)
+								.phoneNumberPublic(false)
+								.dateOfBirthPublic(false)
+								.genderPublic(false)
+								.profilePicturePublic(false)
 								.build()
 						));
 	}

@@ -4,6 +4,8 @@ import com.connectoBackend.user.enums.Gender;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +37,10 @@ public class UpdateUserRequest {
 
 	@Size(max = 500)
 	private String profilePictureUrl;
+
+	@Min(1)
+	@Max(21)
+	private Integer avatarId;
 
 	@Size(max = 500)
 	private String bio;

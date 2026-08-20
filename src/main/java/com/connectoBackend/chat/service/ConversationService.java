@@ -17,19 +17,19 @@ public interface ConversationService {
 
 	ConversationResponse createConversation(UUID creatorUserId, CreateConversationRequest request);
 
-	ConversationResponse getConversation(UUID conversationId);
+	ConversationResponse getConversation(UUID conversationId, UUID viewerUserId);
 
 	Page<ConversationSummaryResponse> getConversationsForUser(UUID userId, Pageable pageable);
 
-	ConversationResponse updateConversation(UUID conversationId, UpdateConversationRequest request);
+	ConversationResponse updateConversation(UUID conversationId, UUID viewerUserId, UpdateConversationRequest request);
 
-	void deleteConversation(UUID conversationId);
+	void deleteConversation(UUID conversationId, UUID viewerUserId);
 
-	ConversationMemberResponse addMember(UUID conversationId, UUID userId, ConversationMemberRole role);
+	ConversationMemberResponse addMember(UUID conversationId, UUID actorUserId, UUID userId, ConversationMemberRole role);
 
-	ConversationMemberResponse updateMemberRole(UUID conversationId, UUID userId, UpdateMemberRoleRequest request);
+	ConversationMemberResponse updateMemberRole(UUID conversationId, UUID actorUserId, UUID userId, UpdateMemberRoleRequest request);
 
-	void removeMember(UUID conversationId, UUID userId);
+	void removeMember(UUID conversationId, UUID actorUserId, UUID userId);
 
-	List<ConversationMemberResponse> getMembers(UUID conversationId);
+	List<ConversationMemberResponse> getMembers(UUID conversationId, UUID viewerUserId);
 }

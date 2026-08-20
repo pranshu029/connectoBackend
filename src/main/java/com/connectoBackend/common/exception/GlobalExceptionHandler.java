@@ -44,6 +44,20 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(
+            IllegalStateException exception,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Service Unavailable",
+                "Unable to process the request right now.",
+                request.getRequestURI(),
+                null
+        );
+    }
+
     // -> Validation errors from @Validated
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(
@@ -91,6 +105,21 @@ public class GlobalExceptionHandler {
                 null
         );
     }
+
+        @ExceptionHandler(ForbiddenException.class)
+        public ResponseEntity<ErrorResponse> handleForbiddenException(
+                        ForbiddenException exception,
+                        HttpServletRequest request
+        ) {
+
+                return buildResponse(
+                                HttpStatus.FORBIDDEN,
+                                "Forbidden",
+                                exception.getMessage(),
+                                request.getRequestURI(),
+                                null
+                );
+        }
 
     // -> Custom authentication exception
     @ExceptionHandler(AuthenticationException.class)

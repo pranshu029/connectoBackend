@@ -7,6 +7,7 @@ import com.connectoBackend.user.dto.response.UserSummaryResponse;
 import com.connectoBackend.user.entity.BlockedUser;
 import com.connectoBackend.user.entity.User;
 import com.connectoBackend.user.repository.BlockedUserRepository;
+import com.connectoBackend.user.repository.ConnectionRepository;
 import com.connectoBackend.user.repository.UserRepository;
 import com.connectoBackend.user.service.BlockUserService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class BlockUserServiceImpl implements BlockUserService {
 
 	private final UserRepository userRepository;
 	private final BlockedUserRepository blockedUserRepository;
+	 private final ConnectionRepository connectionRepository;
 
 	@Override
 	public void blockUser(UUID userId, UUID blockedUserId) {
@@ -47,6 +49,8 @@ public class BlockUserServiceImpl implements BlockUserService {
 						.blockedUser(blockedUser)
 						.build()
 		);
+		connectionRepository.deleteByUserAndTargetUser(user, blockedUser);
+		connectionRepository.deleteByUserAndTargetUser(blockedUser, user);
 	}
 
 	@Override

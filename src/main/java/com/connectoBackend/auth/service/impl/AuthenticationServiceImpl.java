@@ -9,6 +9,7 @@ import com.connectoBackend.auth.service.AuthenticationService;
 import com.connectoBackend.common.util.HashUtil;
 import com.connectoBackend.common.constants.SecurityConstants;
 import com.connectoBackend.session.service.RefreshTokenService;
+import com.connectoBackend.session.service.UserSessionService;
 import com.connectoBackend.session.util.DeviceInfoExtractor;
 
 import com.connectoBackend.security.service.JwtService;
@@ -39,6 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+        private final UserSessionService userSessionService;
     private final UserRepository userRepository;
     private final DeviceInfoExtractor deviceInfoExtractor;
 
@@ -69,6 +71,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 user.getId(),
                 HashUtil.sha256(refreshToken),
                 deviceInfo
+        );
+
+        userSessionService.createSession(
+                user.getId(),
+                deviceInfo.getDeviceId(),
+                deviceInfo.getDeviceName(),
+                deviceInfo.getOperatingSystem(),
+                deviceInfo.getBrowser(),
+                deviceInfo.getIpAddress(),
+                deviceInfo.getUserAgent()
         );
 
         return buildAuthenticationResponse(accessToken, refreshToken);

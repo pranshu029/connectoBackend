@@ -11,7 +11,9 @@ import com.connectoBackend.user.entity.Connection;
 import com.connectoBackend.user.entity.User;
 import com.connectoBackend.user.enums.ConnectionStatus;
 import com.connectoBackend.user.repository.ConnectionRepository;
+import com.connectoBackend.user.repository.BlockedUserRepository;
 import com.connectoBackend.user.repository.UserRepository;
+import com.connectoBackend.user.repository.UserSettingsRepository;
 import com.connectoBackend.user.service.ConnectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,9 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     private final UserRepository userRepository;
     private final ConnectionRepository connectionRepository;
+    private final BlockedUserRepository blockedUserRepository;
     private final NotificationRepository notificationRepository;
+    private final UserSettingsRepository userSettingsRepository;
 
     @Override
     public void sendConnectionRequest(UUID userId, UUID targetUserId) {
@@ -37,6 +41,8 @@ public class ConnectionServiceImpl implements ConnectionService {
 
         User user = getUser(userId);
         User targetUser = getUser(targetUserId);
+
+        rejectBlocked(user, targetUser);
 
         if (connectionRepository.existsConnectionBetweenUsers(user, targetUser)) {
             throw new ConflictException("A connection already exists or a request is already pending.");
@@ -69,6 +75,8 @@ public class ConnectionServiceImpl implements ConnectionService {
         User user = getUser(userId);
         User targetUser = getUser(targetUserId);
 
+        rejectBlocked(user, targetUser);
+
         Connection request = connectionRepository.findByUserAndTargetUser(targetUser, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Connection request not found."));
 
@@ -79,18 +87,6 @@ public class ConnectionServiceImpl implements ConnectionService {
         request.setStatus(ConnectionStatus.CONNECTED);
 
         connectionRepository.save(request);
-
-        connectionRepository.findByUserAndTargetUser(user, targetUser)
-                .ifPresentOrElse(
-                        existing -> existing.setStatus(ConnectionStatus.CONNECTED),
-                        () -> connectionRepository.save(
-                                Connection.builder()
-                                        .user(user)
-                                        .targetUser(targetUser)
-                                        .status(ConnectionStatus.CONNECTED)
-                                        .build()
-                        )
-                );
 
         Notification notification = Notification.builder()
                 .user(targetUser)
@@ -197,9 +193,23 @@ public class ConnectionServiceImpl implements ConnectionService {
     @Transactional(readOnly = true)
     public List<UserSummaryResponse> getConnections(UUID userId) {
         User user = getUser(userId);
-        return connectionRepository.findAllByUserAndStatus(user, ConnectionStatus.CONNECTED)
-                .stream()
-                .map(connection -> toSummary(connection.getTargetUser()))
+        return java.util.stream.Stream.concat(
+                connectionRepository.findAllByUserAndStatus(user, ConnectionStatus.CONNECTED)
+                    .stream()
+                    .map(Connection::getTargetUser),
+                connectionRepository.findAllByTargetUserAndStatus(user, ConnectionStatus.CONNECTED)
+                    .stream()
+                    .map(Connection::getUser)
+            )
+            .filter(java.util.Objects::nonNull)
+            .collect(java.util.stream.Collectors.toMap(
+                User::getId,
+                this::toSummary,
+                (first, ignored) -> first,
+                java.util.LinkedHashMap::new
+            ))
+            .values()
+            .stream()
                 .toList();
     }
 
@@ -227,8 +237,11 @@ public class ConnectionServiceImpl implements ConnectionService {
         return new UserSummaryResponse(
                 user.getId(),
                 user.getUsername(),
-                user.getFirstName() + " " + user.getLastName(),
-                user.getProfilePictureUrl(),
+                null,
+                userSettingsRepository.findByUser(user)
+                    .filter(settings -> Boolean.TRUE.equals(settings.getProfilePicturePublic()))
+                    .map(settings -> user.getProfilePictureUrl())
+                    .orElse(null),
                 Boolean.TRUE.equals(user.getEmailVerified())
         );
     }
@@ -236,5 +249,12 @@ public class ConnectionServiceImpl implements ConnectionService {
     private User getUser(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    }
+
+    private void rejectBlocked(User first, User second) {
+        if (blockedUserRepository.existsByUserAndBlockedUser(first, second)
+                || blockedUserRepository.existsByUserAndBlockedUser(second, first)) {
+            throw new com.connectoBackend.common.exception.ForbiddenException("This user interaction is blocked.");
+        }
     }
 }

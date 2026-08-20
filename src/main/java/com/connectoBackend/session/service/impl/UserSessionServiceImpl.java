@@ -1,6 +1,7 @@
 package com.connectoBackend.session.service.impl;
 
 import com.connectoBackend.common.exception.ResourceNotFoundException;
+import com.connectoBackend.common.exception.ForbiddenException;
 import com.connectoBackend.session.entity.UserSession;
 import com.connectoBackend.session.enums.DeviceType;
 import com.connectoBackend.session.repository.UserSessionRepository;
@@ -60,7 +61,8 @@ public class UserSessionServiceImpl implements UserSessionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserSession> getActiveSessions(UUID userId) {
+    public List<UserSession> getActiveSessions(UUID requesterId, UUID userId) {
+        requireSameUser(requesterId, userId);
         return userSessionRepository.findAllByUserAndActiveTrue(getUser(userId));
     }
 
@@ -74,17 +76,19 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     @Override
-    public void logout(UUID sessionId) {
+    public void logout(UUID requesterId, UUID sessionId) {
 
         UserSession session = getSession(sessionId);
+        requireSameUser(requesterId, session.getUser().getId());
         session.setActive(false);
 
         userSessionRepository.save(session);
     }
 
     @Override
-    public void logoutAll(UUID userId) {
+    public void logoutAll(UUID requesterId, UUID userId) {
 
+        requireSameUser(requesterId, userId);
         List<UserSession> sessions =
                 userSessionRepository.findAllByUserAndActiveTrue(getUser(userId));
 
@@ -114,5 +118,11 @@ public class UserSessionServiceImpl implements UserSessionService {
 
         return userSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Session not found."));
+    }
+
+    private void requireSameUser(UUID requesterId, UUID ownerId) {
+        if (!requesterId.equals(ownerId)) {
+            throw new ForbiddenException("You can manage only your own sessions.");
+        }
     }
 }

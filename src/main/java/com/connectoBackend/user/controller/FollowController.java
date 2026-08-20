@@ -5,6 +5,9 @@ import com.connectoBackend.user.dto.response.UserSummaryResponse;
 import com.connectoBackend.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import com.connectoBackend.common.exception.ForbiddenException;
+import com.connectoBackend.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,13 +18,15 @@ import java.util.UUID;
 public class FollowController {
 
     private final FollowService followService;
+        private final UserRepository userRepository;
 
     @PostMapping("/{userId}/follow/{targetUserId}")
     public ApiResponse<Void> followUser(
             @PathVariable UUID userId,
-            @PathVariable UUID targetUserId
+            @PathVariable UUID targetUserId,
+            Authentication authentication
     ) {
-        followService.followUser(userId, targetUserId);
+        followService.followUser(currentUserId(userId, authentication), targetUserId);
         return ApiResponse.<Void>builder()
                 .success(true)
                 .message("Follow action processed successfully.")
@@ -31,9 +36,10 @@ public class FollowController {
     @DeleteMapping("/{userId}/follow/{targetUserId}")
     public ApiResponse<Void> unfollowUser(
             @PathVariable UUID userId,
-            @PathVariable UUID targetUserId
+            @PathVariable UUID targetUserId,
+            Authentication authentication
     ) {
-        followService.unfollowUser(userId, targetUserId);
+        followService.unfollowUser(currentUserId(userId, authentication), targetUserId);
         return ApiResponse.<Void>builder()
                 .success(true)
                 .message("Unfollowed successfully.")
@@ -88,9 +94,10 @@ public class FollowController {
     @PutMapping("/{userId}/follow-requests/{requestId}/accept")
     public ApiResponse<Void> acceptFollowRequest(
             @PathVariable UUID userId,
-            @PathVariable UUID requestId
+            @PathVariable UUID requestId,
+            Authentication authentication
     ) {
-        followService.acceptFollowRequest(userId, requestId);
+        followService.acceptFollowRequest(currentUserId(userId, authentication), requestId);
         return ApiResponse.<Void>builder()
                 .success(true)
                 .message("Follow request accepted successfully.")
@@ -100,12 +107,22 @@ public class FollowController {
     @PutMapping("/{userId}/follow-requests/{requestId}/reject")
     public ApiResponse<Void> rejectFollowRequest(
             @PathVariable UUID userId,
-            @PathVariable UUID requestId
+            @PathVariable UUID requestId,
+            Authentication authentication
     ) {
-        followService.rejectFollowRequest(userId, requestId);
+        followService.rejectFollowRequest(currentUserId(userId, authentication), requestId);
         return ApiResponse.<Void>builder()
                 .success(true)
                 .message("Follow request rejected successfully.")
                 .build();
     }
+
+        private UUID currentUserId(UUID requestedUserId, Authentication authentication) {
+                UUID authenticatedUserId = userRepository.findByEmail(authentication.getName())
+                                .orElseThrow(() -> new IllegalStateException("Authenticated user not found.")).getId();
+                if (!authenticatedUserId.equals(requestedUserId)) {
+                        throw new ForbiddenException("You can act only as the authenticated user.");
+                }
+                return authenticatedUserId;
+        }
 }

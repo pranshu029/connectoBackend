@@ -6,6 +6,7 @@ import com.connectoBackend.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,8 @@ import java.util.UUID;
  */
 @Repository
 public interface ConversationReadStateRepository extends JpaRepository<ConversationReadState, UUID> {
+
+    List<ConversationReadState> findAllByConversation(Conversation conversation);
 
     Optional<ConversationReadState> findByConversationAndUser(
             Conversation conversation,

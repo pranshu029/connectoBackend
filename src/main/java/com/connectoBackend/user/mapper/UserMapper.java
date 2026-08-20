@@ -32,7 +32,7 @@ public interface UserMapper extends BaseMapper<UserResponse, User> {
     User toEntity(CreateUserRequest request);
 
     // -> Convert entity to response DTO.
-    @Mapping(target = "fullName", expression = "java(buildFullName(entity))")
+    @Mapping(target = "fullName", ignore = true)
     @Mapping(target = "profileImageUrl", source = "profilePictureUrl")
     @Mapping(target = "verified", source = "emailVerified")
     @Override
@@ -41,6 +41,7 @@ public interface UserMapper extends BaseMapper<UserResponse, User> {
     // -> Convert entity to profile response DTO.
     @Mapping(target = "fullName", expression = "java(buildFullName(entity))")
     @Mapping(target = "profilePictureUrl", source = "profilePictureUrl")
+    @Mapping(target = "avatarId", source = "avatarId")
     @Mapping(target = "coverPictureUrl", ignore = true)
     @Mapping(target = "emailVerified", source = "emailVerified")
     UserProfileResponse toProfileResponse(User entity);
@@ -55,6 +56,7 @@ public interface UserMapper extends BaseMapper<UserResponse, User> {
     @Mapping(target = "username", source = "username")
     @Mapping(target = "phoneNumber", source = "phoneNumber")
     @Mapping(target = "profilePictureUrl", source = "profilePictureUrl")
+    @Mapping(target = "avatarId", source = "avatarId")
     @Mapping(target = "bio", source = "bio")
     @Mapping(target = "dateOfBirth", source = "dateOfBirth")
     @Mapping(target = "gender", source = "gender")

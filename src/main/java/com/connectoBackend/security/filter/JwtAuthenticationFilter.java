@@ -2,6 +2,7 @@ package com.connectoBackend.security.filter;
 
 import com.connectoBackend.security.service.CustomUserDetailsService;
 import com.connectoBackend.security.service.JwtService;
+import com.connectoBackend.security.enums.TokenType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username;
 
         try {
+            if (jwtService.extractTokenType(jwt) != TokenType.ACCESS) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             username = jwtService.extractUsername(jwt);
         } catch (Exception exception) {
             filterChain.doFilter(request, response);

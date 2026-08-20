@@ -1,6 +1,7 @@
 package com.connectoBackend.notification.service.impl;
 
 import com.connectoBackend.common.exception.ResourceNotFoundException;
+import com.connectoBackend.common.exception.ForbiddenException;
 import com.connectoBackend.notification.dto.NotificationResponse;
 import com.connectoBackend.notification.entity.Notification;
 import com.connectoBackend.notification.repository.NotificationRepository;
@@ -33,9 +34,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void markNotificationAsRead(UUID notificationId) {
+    public void markNotificationAsRead(UUID userId, UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found."));
+        requireOwner(userId, notification);
         notification.setReadStatus(true);
         notificationRepository.save(notification);
     }
@@ -49,10 +51,23 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void deleteNotification(UUID notificationId) {
+    public void deleteNotification(UUID userId, UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification not found."));
+        requireOwner(userId, notification);
         notificationRepository.delete(notification);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUnreadCount(UUID userId) {
+        return notificationRepository.countByUserAndReadStatusFalse(getUser(userId));
+    }
+
+    private void requireOwner(UUID userId, Notification notification) {
+        if (!notification.getUser().getId().equals(userId)) {
+            throw new ForbiddenException("You can manage only your own notifications.");
+        }
     }
 
     private NotificationResponse toResponse(Notification notification) {

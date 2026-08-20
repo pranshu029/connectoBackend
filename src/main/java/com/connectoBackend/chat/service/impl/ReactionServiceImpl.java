@@ -7,6 +7,10 @@ import com.connectoBackend.chat.entity.MessageReaction;
 import com.connectoBackend.chat.enums.ReactionType;
 import com.connectoBackend.chat.repository.MessageReactionRepository;
 import com.connectoBackend.chat.repository.MessageRepository;
+import com.connectoBackend.chat.repository.ConversationMemberRepository;
+import com.connectoBackend.chat.entity.ConversationMember;
+import com.connectoBackend.chat.enums.MemberStatus;
+import com.connectoBackend.common.exception.ForbiddenException;
 import com.connectoBackend.chat.service.ReactionService;
 import com.connectoBackend.common.exception.ResourceNotFoundException;
 import com.connectoBackend.user.entity.User;
@@ -26,6 +30,7 @@ public class ReactionServiceImpl implements ReactionService {
 	private final MessageReactionRepository messageReactionRepository;
 	private final MessageRepository messageRepository;
 	private final UserRepository userRepository;
+	private final ConversationMemberRepository conversationMemberRepository;
 
 	@Override
 	public MessageReactionResponse addReaction(UUID messageId, UUID userId, AddReactionRequest request) {
@@ -50,12 +55,22 @@ public class ReactionServiceImpl implements ReactionService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<MessageReactionResponse> getReactions(UUID messageId) {
+	public List<MessageReactionResponse> getReactions(UUID messageId, UUID viewerId) {
 		Message message = getMessage(messageId);
+		requireActiveMember(message, viewerId);
 		return messageReactionRepository.findAllByMessage(message)
 				.stream()
 				.map(this::toResponse)
 				.toList();
+	}
+
+	private void requireActiveMember(Message message, UUID userId) {
+		User user = getUser(userId);
+		ConversationMember member = conversationMemberRepository.findByConversationAndUser(message.getConversation(), user)
+				.orElseThrow(() -> new ForbiddenException("You are not a member of this conversation."));
+		if (!member.isActive() || member.getStatus() != MemberStatus.ACTIVE) {
+			throw new ForbiddenException("You are not an active member of this conversation.");
+		}
 	}
 
 	private Message getMessage(UUID messageId) {
